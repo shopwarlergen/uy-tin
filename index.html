@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warlergen</title>
+  <style>
+    * {margin:0; padding:0; box-sizing: border-box; font-family: Arial, sans-serif;}
+    body {background-color: #0d0d0d; color: #fff;}
+    header {display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #111;}
+    .header-left {display: flex; align-items: center; gap: 20px;}
+    .header-left .logo {font-size: 24px; font-weight: bold;}
+    .header-left .shop-name {font-size: 18px;}
+    .header-right {display: flex; align-items: center; gap: 15px;}
+    .header-right button {padding: 5px 15px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer;}
+    .header-right button:hover {background-color: #444;}
+    nav a {color: #fff; margin-left: 20px; text-decoration: none;}
+    .banner {height: 300px; background: url('https://via.placeholder.com/1200x300') center/cover no-repeat; margin-bottom: 40px;}
+    .products {display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 0 20px;}
+    .product {background-color: #222; padding: 10px; border-radius: 10px; text-align: center;}
+    .product img {width: 100%; border-radius: 10px; margin-top: 10px;}
+    .product button {padding: 10px 20px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;}
+    .product button:hover {background-color: #444;}
+    footer {text-align: center; padding: 20px; background-color: #111; margin-top: 40px; display: flex; justify-content: center; gap: 20px;}
+    footer button {padding: 10px 20px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer;}
+    footer button:hover {background-color: #444;}
+    .status {margin-top: 5px; font-weight: bold; color: #0f0;}
+    .service-label {font-size: 16px; color: #ccc; margin-bottom: 10px; text-align: center; display: block;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="logo">Warlergen</div>
+      <div class="shop-name">Shop</div>
+    </div>
+    <div class="header-right">
+      <button>Đang nhập</button>
+      <button>Nạp tiền</button>
+      <button>Tài khoản</button>
+    </div>
+  </header>
+
+  <div class="banner"></div>
+
+  <section class="products">
+    <div class="product">
+      <div class="service-label">Dịch vụ cày thuê</div>
+      <h3>Blox Fruit</h3>
+      <div class="status">Trạng thái: Hoạt động</div>
+      <button onclick="window.location.href='bloxfruit.html'">Thuê ngay</button>
+      <img src="https://via.placeholder.com/200" alt="Blox Fruit">
+    </div>
+  </section>
+
+  <footer>
+    <button>Trang chủ</button>
+    <button>Cửa hàng</button>
+    <button>Tin tức</button>
+    <button>Liên hệ</button>
+  </footer>
+</body>
+</html>
