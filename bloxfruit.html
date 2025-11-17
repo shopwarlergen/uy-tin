@@ -13,55 +13,53 @@
     h1 {color: #0f0; margin-bottom: 20px;}
     .info-box {background-color: #222; padding: 20px; border-radius: 10px; display: inline-block; text-align: left; max-width: 400px; width: 100%;}
     p {margin-bottom: 15px;}
-    select, input, textarea {width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none; background-color: #333; color: #fff;}
+    .input-field, input, textarea {width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none; background-color: #333; color: #fff; box-sizing: border-box;}
+    .dropdown {position: relative; cursor: pointer; padding: 10px; background-color: #333; border-radius: 5px; margin-bottom: 15px; user-select: none;}
+    .dropdown-content {display: none; background-color: #333; color: #fff; border-radius: 5px; margin-top: 5px; text-align: left; padding: 0; max-height: 150px; overflow-y: auto;}
+    .dropdown-content ul {list-style: none; padding-left: 0; margin: 0;}
+    .dropdown-content li {padding: 10px; border-bottom: 1px solid #444;}
     button.action {width: 100%; margin-top: 10px;}
   </style>
 </head>
 <body>
   <header>
     <div class="logo">Shop</div>
-    <button>Nạp tiền</button>
+    <button onclick="window.location.href='naptien.html'">Nạp tiền</button>
     <button onclick="window.history.back()">Quay lại</button>
   </header>
 
   <div class="info-box">
     <h1>Blox Fruit - Dịch vụ cày thuê</h1>
-    <select onchange="showServices(this.value)">
-      <option value="">Chọn dịch vụ</option>
-      <option value="1">Dịch vụ 1</option>
-      <option value="2">Dịch vụ 2</option>
-      <option value="3">Dịch vụ 3</option>
-      <option value="4">Dịch vụ 4</option>
-      <option value="5">Dịch vụ 5</option>
-      <option value="6">Dịch vụ 6</option>
-      <option value="7">Dịch vụ 7</option>
-    </select>
-    <div id="services" style="display:none;">
-      <p>Dịch vụ bạn chọn sẽ hiển thị ở đây.</p>
+
+    <div class="dropdown" onclick="toggleDropdown()">Chọn dịch vụ
+      <div class="dropdown-content" id="dropdownContent">
+        <ul>
+          <li class="input-field">Dịch vụ 1</li>
+          <li class="input-field">Dịch vụ 2</li>
+          <li class="input-field">Dịch vụ 3</li>
+          <li class="input-field">Dịch vụ 4</li>
+          <li class="input-field">Dịch vụ 5</li>
+          <li class="input-field">Dịch vụ 6</li>
+          <li class="input-field">Dịch vụ 7</li>
+        </ul>
+      </div>
     </div>
-    <input type="text" placeholder="Nhập tên tài khoản">
-    <input type="password" placeholder="Nhập mật khẩu">
-    <textarea placeholder="Ghi chú"></textarea>
-    <p>Chúng tôi cung cấp dịch vụ cày thuê Blox Fruit chuyên nghiệp. Nhanh chóng và an toàn!</p>
+
+    <input type="text" class="input-field" placeholder="Nhập tên tài khoản">
+    <input type="password" class="input-field" placeholder="Nhập mật khẩu">
+    <textarea class="input-field" placeholder="Ghi chú"></textarea>
     <button class="action" onclick="alert('Đã gửi yêu cầu!')">Gửi yêu cầu</button>
   </div>
 
+  <p style="margin-top:20px;">Chúng tôi cung cấp dịch vụ cày thuê Blox Fruit chuyên nghiệp. Nhanh chóng và an toàn!</p>
+
   <script>
-    function showServices(val) {
-      const servicesDiv = document.getElementById('services');
-      if(val) {
-        servicesDiv.style.display = 'block';
-        servicesDiv.innerHTML = '<ul>' +
-          '<li>Dịch vụ 1</li>' +
-          '<li>Dịch vụ 2</li>' +
-          '<li>Dịch vụ 3</li>' +
-          '<li>Dịch vụ 4</li>' +
-          '<li>Dịch vụ 5</li>' +
-          '<li>Dịch vụ 6</li>' +
-          '<li>Dịch vụ 7</li>' +
-          '</ul>';
+    function toggleDropdown() {
+      const content = document.getElementById('dropdownContent');
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
       } else {
-        servicesDiv.style.display = 'none';
+        content.style.display = 'block';
       }
     }
   </script>
