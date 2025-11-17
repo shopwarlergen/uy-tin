@@ -10,10 +10,14 @@
     header .logo {font-size: 20px; font-weight: bold;}
     header button {padding: 5px 15px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer;}
     header button:hover {background-color: #444;}
-    .payment-box {background-color: #222; padding: 20px; border-radius: 10px; max-width: 400px; margin: 0 auto; text-align: left;}
     h1 {color: #0f0; margin-bottom: 20px; text-align: center;}
-    button.method {width: 100%; padding: 10px; margin-bottom: 15px; border: none; border-radius: 5px; background-color: #333; color: #fff; cursor: pointer;}
-    button.method:hover {background-color: #444;}
+    .payment-container {display: flex; gap: 20px; justify-content: center;}
+    .payment-box {background-color: #222; padding: 20px; border-radius: 10px; width: 220px; text-align: left;}
+    .payment-box button {width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #333; color: #fff; cursor: pointer; font-size: 16px; margin-bottom: 10px;}
+    .payment-box button:hover {background-color: #444;}
+    .input-field, select {width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background-color: #333; color: #fff; box-sizing: border-box;}
+    .input-field[readonly] {background-color: transparent; color: #fff; cursor: default;}
+    .label {margin-bottom: 5px; display: block;}
   </style>
 </head>
 <body>
@@ -22,10 +26,61 @@
     <button onclick="window.history.back()">Quay lại</button>
   </header>
 
-  <div class="payment-box">
-    <h1>Nạp tiền</h1>
-    <button class="method" onclick="alert('Nạp tiền bằng thẻ cào')">Nạp tiền bằng thẻ cào</button>
-    <button class="method" onclick="alert('Nạp tiền bằng ngân hàng')">Nạp tiền bằng ngân hàng</button>
+  <h1>Nạp tiền</h1>
+  <div class="payment-container">
+    <div class="payment-box">
+      <h2>Nạp tiền bằng thẻ cào</h2>
+      <label class="label">Nhà mạng</label>
+      <select class="input-field">
+        <option value="Viettel">Viettel</option>
+        <option value="Mobifone">Mobifone</option>
+        <option value="Vinaphone">Vinaphone</option>
+      </select>
+      <label class="label">Mệnh giá thẻ</label>
+      <input type="number" class="input-field" placeholder="Nhập mệnh giá thẻ">
+      <label class="label">Mã thẻ</label>
+      <input type="text" class="input-field" placeholder="Nhập mã thẻ">
+      <label class="label">Seri</label>
+      <input type="text" class="input-field" placeholder="Nhập seri">
+      <button onclick="processCard()">Nạp thẻ</button>
+    </div>
+
+    <div class="payment-box">
+      <h2>Nạp tiền bằng ngân hàng</h2>
+      <span class="label">Số tài khoản</span>
+      <span style="display:block; margin-bottom:10px;">8886936299</span>
+      <span class="label">Tên tài khoản</span>
+      <span style="display:block; margin-bottom:10px;"> Ha Thi Ngoc Lan</span>
+      <span class="label">Nội dung chuyển</span>
+      <span style="display:block; margin-bottom:10px;">Warlergen</span>
+      <span class="label">lưu ý nhập đúng nọi dung chuyên khoảng nhập sai thì không hoàn tiền</span>
+    </div>
   </div>
+
+  <script>
+    function processCard() {
+      const cardValue = document.querySelector('.payment-box:nth-child(1) input[type=number]').value;
+      const cardCode = document.querySelector('.payment-box:nth-child(1) input[placeholder="Nhập mã thẻ"]').value;
+      const cardSeri = document.querySelector('.payment-box:nth-child(1) input[placeholder="Nhập seri"]').value;
+
+      if(cardValue !== '10000' && cardValue !== '20000' && cardValue !== '50000') {
+        alert('Mất thẻ vì mệnh giá không hợp lệ');
+        return;
+      }
+      if(cardCode !== '123456') {
+        alert('Sai mã thẻ');
+        return;
+      }
+      if(cardSeri !== '654321') {
+        alert('Sai seri');
+        return;
+      }
+      alert('Nạp thẻ thành công!');
+    }
+
+    function processBank() {
+      alert('Nạp tiền thành công qua ngân hàng!');
+    }
+  </script>
 </body>
 </html>
