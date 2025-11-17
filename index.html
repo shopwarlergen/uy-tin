@@ -16,16 +16,15 @@
     .header-right button:hover {background-color: #444;}
     nav a {color: #fff; margin-left: 20px; text-decoration: none;}
     .banner {height: 300px; background: url('https://via.placeholder.com/1200x300') center/cover no-repeat; margin-bottom: 40px;}
-    .products {display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 0 20px;}
-    .product {background-color: #222; padding: 10px; border-radius: 10px; text-align: center;}
-    .product img {width: 100%; border-radius: 10px; margin-top: 10px;}
+    .service-label {font-size: 16px; color: #ccc; text-align: center; margin-bottom: 20px; display: block;}
+    .products {display: flex; flex-direction: column; align-items: center; padding: 0 20px;}
+    .product {background-color: #222; padding: 10px; border-radius: 10px; text-align: center; max-width: 250px;}
     .product button {padding: 10px 20px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;}
     .product button:hover {background-color: #444;}
+    .status {margin-top: 5px; font-weight: bold; color: #0f0;}
     footer {text-align: center; padding: 20px; background-color: #111; margin-top: 40px; display: flex; justify-content: center; gap: 20px;}
     footer button {padding: 10px 20px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer;}
     footer button:hover {background-color: #444;}
-    .status {margin-top: 5px; font-weight: bold; color: #0f0;}
-    .service-label {font-size: 16px; color: #ccc; margin-bottom: 10px; text-align: center; display: block;}
   </style>
 </head>
 <body>
@@ -43,13 +42,13 @@
 
   <div class="banner"></div>
 
+  <div class="service-label">Dịch vụ cày thuê</div>
+
   <section class="products">
     <div class="product">
-      <div class="service-label">Dịch vụ cày thuê</div>
       <h3>Blox Fruit</h3>
       <div class="status">Trạng thái: Hoạt động</div>
       <button onclick="window.location.href='bloxfruit.html'">Thuê ngay</button>
-      <img src="https://via.placeholder.com/200" alt="Blox Fruit">
     </div>
   </section>
 
