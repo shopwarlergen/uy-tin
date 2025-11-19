@@ -1,149 +1,370 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nạp tiền</title>
-<style>
-    body {
-        background-color: #0d0d0d;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding: 20px;
-    }
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        background-color: #111;
-        margin-bottom: 30px;
-    }
-    header .logo {
-        font-size: 20px;
-        font-weight: bold;
-    }
-    header button {
-        padding: 5px 15px;
-        background-color: #222;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    header button:hover {
-        background-color: #444;
-    }
-    h1 {
-        color: #0f0;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .payment-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-    }
-    .payment-box {
-        background-color: #222;
-        padding: 20px;
-        border-radius: 10px;
-        width: 280px;
-        text-align: left;
-        box-shadow: 0 0 10px #0005;
-    }
-    .payment-box input, .payment-box select, .payment-box button {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        border: none;
-        background-color: #333;
-        color: #fff;
-        box-sizing: border-box;
-    }
-    .payment-box button {
-        font-weight: bold;
-        cursor: pointer;
-        background-color: #00aaff;
-    }
-    .payment-box button:hover {
-        background-color: #0099dd;
-    }
-    .disabled {
-        opacity: 0.4;
-        pointer-events: none;
-        position: relative;
-    }
-    .disabled .unfinished {
-        color: #ff4444;
-        font-size: 14px;
-    }
-    .label {
-        margin-bottom: 5px;
-        display: block;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nạp tiền - Shop Cày Thuê</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .balance {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .balance span {
+            color: #f39c12;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert.show {
+            display: block;
+        }
+        .status-check {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        .status-check.show {
+            display: block;
+        }
+        .status-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+        }
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        .history {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .history h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .history-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>💳 Nạp Tiền</h1>
+        <div class="balance">Số dư: <span id="userBalance">0</span> VND</div>
 
-<header>
-    <div class="logo">Shop</div>
-    <button onclick="window.history.back()">Quay lại</button>
-</header>
+        <div id="alertBox" class="alert"></div>
 
-<h1>Nạp tiền</h1>
+        <form id="naptheForm">
+            <div class="form-group">
+                <label>Nhà mạng</label>
+                <select id="telco" required>
+                    <option value="">Chọn nhà mạng</option>
+                    <option value="VIETTEL">Viettel</option>
+                    <option value="MOBIFONE">Mobifone</option>
+                    <option value="VINAPHONE">Vinaphone</option>
+                    <option value="VIETNAMOBILE">Vietnamobile</option>
+                    <option value="ZING">Zing</option>
+                </select>
+            </div>
 
-<div class="payment-container">
+            <div class="form-group">
+                <label>Mệnh giá thẻ</label>
+                <select id="amount" required>
+                    <option value="">Chọn mệnh giá</option>
+                    <option value="10000">10,000 VND</option>
+                    <option value="20000">20,000 VND</option>
+                    <option value="30000">30,000 VND</option>
+                    <option value="50000">50,000 VND</option>
+                    <option value="100000">100,000 VND</option>
+                    <option value="200000">200,000 VND</option>
+                    <option value="300000">300,000 VND</option>
+                    <option value="500000">500,000 VND</option>
+                    <option value="1000000">1,000,000 VND</option>
+                </select>
+            </div>
 
-    <!-- NẠP THẺ CÀO -->
-    <form action="napthe.php" method="POST" class="payment-box">
-        <h2>Nạp tiền bằng thẻ cào</h2>
+            <div class="form-group">
+                <label>Mã thẻ (Pin)</label>
+                <input type="text" id="pin" placeholder="Nhập mã thẻ" required>
+            </div>
 
-        <label class="label">Nhà mạng</label>
-        <select name="telco">
-            <option value="">Chọn nhà mạng</option>
-            <option value="Viettel">Viettel</option>
-            <option value="Mobifone">Mobifone</option>
-            <option value="Vinaphone">Vinaphone</option>
-        </select>
+            <div class="form-group">
+                <label>Số Seri</label>
+                <input type="text" id="seri" placeholder="Nhập số seri" required>
+            </div>
 
-        <label class="label">Mệnh giá thẻ</label>
-        <input type="number" name="amount" placeholder="Nhập mệnh giá thẻ">
+            <button type="submit" class="btn-submit" id="submitBtn">Nạp thẻ</button>
+        </form>
 
-        <label class="label">Mã thẻ</label>
-        <input type="text" name="pin" placeholder="Nhập mã thẻ">
-
-        <label class="label">Seri</label>
-        <input type="text" name="seri" placeholder="Nhập seri">
-
-        <button type="submit">Nạp thẻ</button>
-    </form>
-
-    <!-- NẠP NGÂN HÀNG (chưa làm xong) -->
-    <div class="payment-box disabled">
-        <h2>Nạp bằng ngân hàng <span class="unfinished">— Chưa làm xong</span></h2>
-
-        <label class="label">Chọn ngân hàng</label>
-        <select disabled>
-            <option>Vietcombank</option>
-            <option>MB Bank</option>
-            <option>Techcombank</option>
-        </select>
-
-        <label class="label">Số tiền muốn nạp</label>
-        <input type="text" placeholder="Nhập số tiền" disabled>
-
-        <label class="label">Ghi chú</label>
-        <input type="text" placeholder="Nhập nội dung chuyển" disabled>
-
-        <button disabled>Nạp ngay</button>
+        <div id="statusCheck" class="status-check">
+            <div class="status-text loading">Đang kiểm tra thẻ</div>
+            <div style="text-align: center; font-size: 12px; color: #999;">
+                Thời gian xử lý: 1-5 phút
+            </div>
+        </div>
     </div>
 
-</div>
+    <script>
+        // ⚠️ QUAN TRỌNG: Đổi URL này thành domain backend PHP của bạn
+        const API_URL = 'https://yourdomain.com/api'; // VD: https://api.shopcay.com
 
+        let checkInterval = null;
+        let currentRequestId = null;
+
+        // Load số dư từ localStorage (hoặc từ API nếu có)
+        function loadBalance() {
+            const balance = localStorage.getItem('userBalance') || '0';
+            document.getElementById('userBalance').textContent = 
+                parseInt(balance).toLocaleString('vi-VN');
+        }
+
+        // Hiển thị thông báo
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type} show`;
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 5000);
+        }
+
+        // Kiểm tra trạng thái thẻ
+        async function checkCardStatus(requestId) {
+            try {
+                const response = await fetch(`${API_URL}/check_napthe.php?request_id=${requestId}`, {
+                    credentials: 'include' // Gửi cookie session
+                });
+                const data = await response.json();
+
+                if(data.status === 1 && data.data) {
+                    const status = data.data.status;
+
+                    if(status === 'SUCCESS') {
+                        clearInterval(checkInterval);
+                        const amount = data.data.real_amount || 0;
+                        
+                        // Cập nhật số dư
+                        const currentBalance = parseInt(localStorage.getItem('userBalance') || '0');
+                        const newBalance = currentBalance + amount;
+                        localStorage.setItem('userBalance', newBalance);
+                        loadBalance();
+
+                        document.getElementById('statusCheck').classList.remove('show');
+                        showAlert(`✅ Nạp thẻ thành công! +${amount.toLocaleString('vi-VN')} VND`, 'success');
+                        document.getElementById('submitBtn').disabled = false;
+
+                    } else if(status === 'FAILED') {
+                        clearInterval(checkInterval);
+                        const message = data.data.message || 'Thẻ không hợp lệ';
+                        document.getElementById('statusCheck').classList.remove('show');
+                        showAlert(`❌ ${message}`, 'error');
+                        document.getElementById('submitBtn').disabled = false;
+
+                    } else if(status === 'WRONG_AMOUNT') {
+                        clearInterval(checkInterval);
+                        const amount = data.data.real_amount || 0;
+                        const message = data.data.message || 'Sai mệnh giá';
+                        
+                        if(amount > 0) {
+                            const currentBalance = parseInt(localStorage.getItem('userBalance') || '0');
+                            const newBalance = currentBalance + amount;
+                            localStorage.setItem('userBalance', newBalance);
+                            loadBalance();
+                            showAlert(`⚠️ ${message} - Đã cộng ${amount.toLocaleString('vi-VN')} VND`, 'success');
+                        } else {
+                            showAlert(`⚠️ ${message}`, 'error');
+                        }
+                        
+                        document.getElementById('statusCheck').classList.remove('show');
+                        document.getElementById('submitBtn').disabled = false;
+                    }
+                    // Nếu PENDING thì tiếp tục check
+                }
+            } catch(error) {
+                console.error('Check error:', error);
+            }
+        }
+
+        // Submit form
+        document.getElementById('naptheForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const telco = document.getElementById('telco').value;
+            const amount = document.getElementById('amount').value;
+            const pin = document.getElementById('pin').value;
+            const seri = document.getElementById('seri').value;
+
+            if(!telco || !amount || !pin || !seri) {
+                showAlert('Vui lòng điền đầy đủ thông tin', 'error');
+                return;
+            }
+
+            // Disable button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang xử lý...';
+
+            try {
+                const formData = new FormData();
+                formData.append('telco', telco);
+                formData.append('amount', amount);
+                formData.append('pin', pin);
+                formData.append('seri', seri);
+
+                const response = await fetch(`${API_URL}/naptien.php`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include' // Quan trọng: gửi cookie session
+                });
+
+                const data = await response.json();
+
+                if(data.status === 1) {
+                    currentRequestId = data.request_id;
+                    showAlert(data.msg, 'success');
+                    
+                    // Hiển thị phần check status
+                    document.getElementById('statusCheck').classList.add('show');
+                    
+                    // Bắt đầu polling mỗi 5 giây
+                    checkInterval = setInterval(() => {
+                        checkCardStatus(currentRequestId);
+                    }, 5000);
+
+                    // Check ngay lập tức
+                    checkCardStatus(currentRequestId);
+
+                    // Reset form
+                    document.getElementById('naptheForm').reset();
+
+                } else {
+                    showAlert(data.msg, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Nạp thẻ';
+                }
+
+            } catch(error) {
+                showAlert('Lỗi kết nối đến server', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Nạp thẻ';
+            }
+        });
+
+        // Load số dư khi trang load
+        loadBalance();
+
+        // Cleanup khi tắt trang
+        window.addEventListener('beforeunload', () => {
+            if(checkInterval) clearInterval(checkInterval);
+        });
+    </script>
 </body>
 </html>
