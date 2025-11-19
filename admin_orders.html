@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Đơn Hàng - Admin</title>
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: #fff; font-family: Arial, sans-serif; padding: 20px;}
+    .container {max-width: 1200px; margin: 0 auto;}
+    header {background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;}
+    h1 {font-size: 28px;}
+    .stats {display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;}
+    .stat-box {background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; text-align: center;}
+    .stat-box h3 {font-size: 32px; color: #ffa500; margin-bottom: 5px;}
+    .stat-box p {font-size: 14px; color: #ddd;}
+    .filters {background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;}
+    .filters select, .filters button {padding: 10px 15px; border: none; border-radius: 5px; font-size: 14px;}
+    .filters select {background: #fff; color: #000;}
+    .filters button {background: #0f0; color: #000; font-weight: bold; cursor: pointer;}
+    .filters button:hover {background: #0d0;}
+    table {width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;}
+    th {background: rgba(0,0,0,0.5); padding: 15px; text-align: left; font-weight: bold;}
+    td {padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);}
+    tr:hover {background: rgba(255,255,255,0.05);}
+    .status-badge {display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;}
+    .status-pending {background: #ffa500; color: #000;}
+    .status-processing {background: #00bfff; color: #000;}
+    .status-completed {background: #0f0; color: #000;}
+    .status-cancelled {background: #f00; color: #fff;}
+    .action-btn {padding: 5px 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; margin-right: 5px;}
+    .btn-accept {background: #0f0; color: #000;}
+    .btn-complete {background: #00f; color: #fff;}
+    .btn-cancel {background: #f00; color: #fff;}
+    .action-btn:hover {opacity: 0.8;}
+    .order-detail {background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; margin-top: 5px; font-size: 13px; display: none;}
+    .order-detail.show {display: block;}
+    .toggle-detail {color: #0ff; cursor: pointer; text-decoration: underline;}
+    .empty {text-align: center; padding: 50px; color: #aaa;}
+    .refresh-btn {background: #00f; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;}
+    .refresh-btn:hover {background: #00d;}
+    .loading {text-align: center; padding: 50px; color: #0ff;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 Quản Lý Đơn Hàng Blox Fruits</h1>
+      <button class="refresh-btn" onclick="loadOrders()">🔄 Làm mới</button>
+    </header>
+
+    <div class="stats">
+      <div class="stat-box">
+        <h3 id="totalOrders">0</h3>
+        <p>Tổng đơn hàng</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="pendingOrders">0</h3>
+        <p>Đang chờ</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="processingOrders">0</h3>
+        <p>Đang xử lý</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="completedOrders">0</h3>
+        <p>Hoàn thành</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="totalRevenue">0đ</h3>
+        <p>Doanh thu</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <select id="filterStatus">
+        <option value="">Tất cả trạng thái</option>
+        <option value="PENDING">Đang chờ</option>
+        <option value="PROCESSING">Đang xử lý</option>
+        <option value="COMPLETED">Hoàn thành</option>
+        <option value="CANCELLED">Đã hủy</option>
+      </select>
+      <button onclick="loadOrders()">🔍 Lọc</button>
+    </div>
+
+    <div id="ordersContainer">
+      <div class="loading">Đang tải đơn hàng...</div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ THAY ĐỔI URL API
+    const API_URL = 'https://yourdomain.com/api';
+
+    async function loadOrders() {
+      const container = document.getElementById('ordersContainer');
+      container.innerHTML = '<div class="loading">Đang tải đơn hàng...</div>';
+
+      const filterStatus = document.getElementById('filterStatus').value;
+      
+      try {
+        const response = await fetch(`${API_URL}/get_orders.php?status=${filterStatus}`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+
+        if(data.status === 1) {
+          updateStats(data.stats);
+          displayOrders(data.orders);
+        } else {
+          container.innerHTML = '<div class="empty">Không có đơn hàng nào</div>';
+        }
+      } catch(error) {
+        container.innerHTML = '<div class="empty" style="color:#f00;">Lỗi kết nối server!</div>';
+      }
+    }
+
+    function updateStats(stats) {
+      document.getElementById('totalOrders').textContent = stats.total || 0;
+      document.getElementById('pendingOrders').textContent = stats.pending || 0;
+      document.getElementById('processingOrders').textContent = stats.processing || 0;
+      document.getElementById('completedOrders').textContent = stats.completed || 0;
+      document.getElementById('totalRevenue').textContent = 
+        (stats.revenue || 0).toLocaleString('vi-VN') + 'đ';
+    }
+
+    function displayOrders(orders) {
+      const container = document.getElementById('ordersContainer');
+      
+      if(!orders || orders.length === 0) {
+        container.innerHTML = '<div class="empty">Không có đơn hàng nào</div>';
+        return;
+      }
+
+      let html = '<table><thead><tr>';
+      html += '<th>ID</th><th>Khách hàng</th><th>Dịch vụ</th><th>Giá</th>';
+      html += '<th>Trạng thái</th><th>Ngày đặt</th><th>Thao tác</th></tr></thead><tbody>';
+
+      orders.forEach(order => {
+        const statusClass = 'status-' + order.status.toLowerCase();
+        const statusText = {
+          'PENDING': 'Đang chờ',
+          'PROCESSING': 'Đang xử lý',
+          'COMPLETED': 'Hoàn thành',
+          'CANCELLED': 'Đã hủy'
+        }[order.status];
+
+        html += `<tr>
+          <td>#${order.id}</td>
+          <td>${order.username}</td>
+          <td><span class="toggle-detail" onclick="toggleDetail(${order.id})">${getServiceName(order.service)}</span>
+            <div class="order-detail" id="detail-${order.id}">
+              <strong>Tài khoản game:</strong> ${order.game_username}<br>
+              <strong>Mật khẩu:</strong> ${order.game_password}<br>
+              ${order.note ? '<strong>Ghi chú:</strong> ' + order.note : ''}
+            </div>
+          </td>
+          <td>${parseInt(order.price).toLocaleString('vi-VN')}đ</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td>${new Date(order.created_at).toLocaleString('vi-VN')}</td>
+          <td>${getActionButtons(order)}</td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function getServiceName(service) {
+      const names = {
+        'level-max': '📈 Cày Max Level',
+        'awaken-fruit': '⚡ Awaken Trái',
+        'mastery-melee': '🥊 Mastery Melee',
+        'mastery-sword': '⚔️ Mastery Sword',
+        'farm-fragment': '💎 Farm Fragment',
+        'farm-beli': '💰 Farm Beli',
+        'sea-event': '🌊 Sea Event'
+      };
+      return names[service] || service;
+    }
+
+    function getActionButtons(order) {
+      let btns = '';
+      if(order.status === 'PENDING') {
+        btns += `<button class="action-btn btn-accept" onclick="updateStatus(${order.id}, 'PROCESSING')">✓ Nhận</button>`;
+      }
+      if(order.status === 'PROCESSING') {
+        btns += `<button class="action-btn btn-complete" onclick="updateStatus(${order.id}, 'COMPLETED')">✓ Hoàn thành</button>`;
+      }
+      if(order.status !== 'COMPLETED' && order.status !== 'CANCELLED') {
+        btns += `<button class="action-btn btn-cancel" onclick="updateStatus(${order.id}, 'CANCELLED')">✗ Hủy</button>`;
+      }
+      return btns || '-';
+    }
+
+    function toggleDetail(orderId) {
+      const detail = document.getElementById('detail-' + orderId);
+      detail.classList.toggle('show');
+    }
+
+    async function updateStatus(orderId, newStatus) {
+      if(!confirm('Xác nhận thay đổi trạng thái?')) return;
+
+      try {
+        const formData = new FormData();
+        formData.append('order_id', orderId);
+        formData.append('status', newStatus);
+
+        const response = await fetch(`${API_URL}/update_order.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+        if(data.status === 1) {
+          alert('Cập nhật thành công!');
+          loadOrders();
+        } else {
+          alert('Lỗi: ' + data.msg);
+        }
+      } catch(error) {
+        alert('Lỗi kết nối!');
+      }
+    }
+
+    // Kiểm tra đăng nhập admin
+    async function checkAdminAuth() {
+      try {
+        const response = await fetch(`${API_URL}/check_admin.php`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if(data.status !== 1) {
+          alert('Vui lòng đăng nhập admin!');
+          window.location.href = 'admin_login.html';
+        }
+      } catch(error) {
+        alert('Lỗi kiểm tra phiên đăng nhập!');
+        window.location.href = 'admin_login.html';
+      }
+    }
+
+    // Load đơn hàng khi vào trang
+    checkAdminAuth();
+    loadOrders();
+
+    // Auto refresh mỗi 30 giây
+    setInterval(loadOrders, 30000);
+  </script>
+</body>
+</html>
