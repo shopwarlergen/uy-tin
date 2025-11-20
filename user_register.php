@@ -83,7 +83,10 @@ if($stmt->execute()) {
         'username' => $username
     ]);
 } else {
-    echo json_encode(['status' => 0, 'msg' => 'Lỗi tạo tài khoản']);
+    echo json_encode([
+        'status' => 0, 
+        'msg' => 'Lỗi tạo tài khoản: ' . $stmt->error
+    ]);
 }
 
 $stmt->close();
