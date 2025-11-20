@@ -297,7 +297,7 @@
       <button class="btn-deposit" onclick="window.location.href='naptien.html'" id="btnDeposit" style="display:none;">Nạp tiền</button>
       <button onclick="window.location.href='login.html'" id="btnLogin">Đăng nhập</button>
       <button onclick="handleLogout()" id="btnLogout" style="display:none;">Đăng xuất</button>
-      <button onclick="window.location.href='admin_login.html'" style="background: linear-gradient(135deg, #f00, #c00); border: none;">🛡️ Admin</button>
+      <button onclick="window.location.href='admin_login.html'" id="btnAdmin" style="background: linear-gradient(135deg, #f00, #c00); border: none; display:none;">🛡️ Admin</button>
     </div>
   </header>
 
@@ -371,6 +371,9 @@
   </footer>
 
   <script>
+    // ⚠️ THAY ĐỔI URL API
+    const API_URL = 'https://yourdomain.com/api';
+
     // Load số dư từ localStorage
     function loadBalance() {
       const balance = localStorage.getItem('userBalance') || '0';
@@ -378,11 +381,64 @@
         parseInt(balance).toLocaleString('vi-VN');
     }
 
-    // Load khi trang tải
-    loadBalance();
+    // Kiểm tra trạng thái đăng nhập
+    async function checkLoginStatus() {
+      try {
+        const response = await fetch(`${API_URL}/check_login.php`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
 
-    // Update số dư mỗi 3 giây (nếu có thay đổi từ trang khác)
-    setInterval(loadBalance, 3000);
+        if(data.status === 1) {
+          // Đã đăng nhập
+          document.getElementById('btnLogin').style.display = 'none';
+          document.getElementById('btnLogout').style.display = 'block';
+          document.getElementById('btnDeposit').style.display = 'block';
+          document.getElementById('balanceDisplay').style.display = 'block';
+          
+          // Update số dư
+          localStorage.setItem('userBalance', data.balance || 0);
+          loadBalance();
+        } else {
+          // Chưa đăng nhập
+          document.getElementById('btnLogin').style.display = 'block';
+          document.getElementById('btnLogout').style.display = 'none';
+          document.getElementById('btnDeposit').style.display = 'none';
+          document.getElementById('balanceDisplay').style.display = 'none';
+        }
+      } catch(error) {
+        console.log('Chưa đăng nhập');
+      }
+    }
+
+    // Xử lý đăng xuất
+    async function handleLogout() {
+      if(!confirm('Bạn có chắc muốn đăng xuất?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/user_logout.php`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+
+        if(data.status === 1) {
+          localStorage.removeItem('userBalance');
+          alert('Đã đăng xuất thành công!');
+          window.location.reload();
+        }
+      } catch(error) {
+        alert('Lỗi đăng xuất!');
+      }
+    }
+
+    // Load khi trang tải
+    checkLoginStatus();
+
+    // Update số dư mỗi 5 giây
+    setInterval(() => {
+      loadBalance();
+      checkLoginStatus();
+    }, 5000);
   </script>
 </body>
 </html>
