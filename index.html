@@ -274,6 +274,86 @@
       margin-top: 20px;
     }
 
+    /* Modal Orders */
+    .order-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,255,0,0.2);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .order-id {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f0;
+    }
+    .order-status {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .status-pending {
+      background: rgba(255,165,0,0.2);
+      color: #ffa500;
+      border: 1px solid #ffa500;
+    }
+    .status-processing {
+      background: rgba(0,191,255,0.2);
+      color: #00bfff;
+      border: 1px solid #00bfff;
+    }
+    .status-completed {
+      background: rgba(0,255,0,0.2);
+      color: #0f0;
+      border: 1px solid #0f0;
+    }
+    .status-cancelled {
+      background: rgba(255,0,0,0.2);
+      color: #f00;
+      border: 1px solid #f00;
+    }
+    .order-info {
+      color: #ddd;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .order-info strong {
+      color: #0f0;
+      margin-right: 5px;
+    }
+    .order-progress {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.1);
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #0f0, #0a0);
+      height: 100%;
+      transition: width 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #000;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       header {padding: 15px 20px;}
@@ -295,6 +375,7 @@
     <div class="header-right">
       <div class="user-balance" id="balanceDisplay" style="display:none;">💰 <span id="userBalance">0</span>đ</div>
       <button class="btn-deposit" onclick="window.location.href='naptien.html'" id="btnDeposit" style="display:none;">Nạp tiền</button>
+      <button onclick="showMyOrders()" id="btnOrders" style="display:none;">📋 Đơn của tôi</button>
       <button onclick="window.location.href='login.html'" id="btnLogin">Đăng nhập</button>
       <button onclick="handleLogout()" id="btnLogout" style="display:none;">Đăng xuất</button>
       <button onclick="window.location.href='admin_login.html'" id="btnAdmin" style="background: linear-gradient(135deg, #f00, #c00); border: none; display:none;">🛡️ Admin</button>
@@ -356,6 +437,19 @@
       </div>
     </div>
   </section>
+
+  <!-- Modal xem đơn hàng -->
+  <div id="ordersModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; overflow-y:auto;">
+    <div style="max-width:900px; margin:50px auto; background:#1a1a1a; border-radius:20px; padding:30px; position:relative;">
+      <button onclick="closeOrdersModal()" style="position:absolute; top:20px; right:20px; background:#f00; color:#fff; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">✕ Đóng</button>
+      
+      <h2 style="color:#0f0; margin-bottom:20px; text-align:center;">📋 Đơn Hàng Của Tôi</h2>
+      
+      <div id="ordersContent" style="margin-top:30px;">
+        <div style="text-align:center; color:#aaa; padding:50px;">Đang tải...</div>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <div class="footer-links">
@@ -452,6 +546,99 @@
       
       // Đã đăng nhập -> Chuyển đến trang dịch vụ
       window.location.href = 'bloxfruits.html';
+    }
+
+    // Hiển thị modal đơn hàng
+    function showMyOrders() {
+      const currentUser = localStorage.getItem('currentUser');
+      if(!currentUser) {
+        alert('Vui lòng đăng nhập!');
+        return;
+      }
+
+      document.getElementById('ordersModal').style.display = 'block';
+      loadMyOrders();
+    }
+
+    // Đóng modal
+    function closeOrdersModal() {
+      document.getElementById('ordersModal').style.display = 'none';
+    }
+
+    // Load đơn hàng của user
+    function loadMyOrders() {
+      const currentUser = localStorage.getItem('currentUser');
+      const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const myOrders = allOrders.filter(order => order.username === currentUser);
+
+      const container = document.getElementById('ordersContent');
+
+      if(myOrders.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#aaa; padding:50px;">Bạn chưa có đơn hàng nào</div>';
+        return;
+      }
+
+      let html = '';
+      myOrders.forEach(order => {
+        const statusText = {
+          'PENDING': 'Đang chờ',
+          'PROCESSING': 'Đang xử lý',
+          'COMPLETED': 'Hoàn thành',
+          'CANCELLED': 'Đã hủy'
+        }[order.status] || order.status;
+
+        const statusClass = 'status-' + order.status.toLowerCase();
+
+        const progress = order.progress || 0;
+        const progressText = order.progressText || 'Chưa bắt đầu';
+
+        html += `
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-id">#${order.id}</div>
+              <div class="order-status ${statusClass}">${statusText}</div>
+            </div>
+            <div class="order-info">
+              <div><strong>Dịch vụ:</strong> ${getServiceName(order.service)}</div>
+              <div><strong>Giá:</strong> ${parseInt(order.price).toLocaleString('vi-VN')} VND</div>
+              <div><strong>Tài khoản game:</strong> ${order.game_username}</div>
+              <div><strong>Ngày đặt:</strong> ${new Date(order.createdAt).toLocaleString('vi-VN')}</div>
+              ${order.note ? '<div><strong>Ghi chú:</strong> ' + order.note + '</div>' : ''}
+            </div>
+            ${order.status === 'PROCESSING' ? `
+              <div class="order-progress">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                  <span style="color:#0f0; font-weight:bold;">Tiến độ: ${progressText}</span>
+                  <span style="color:#0f0; font-weight:bold;">${progress}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:${progress}%">${progress > 10 ? progress + '%' : ''}</div>
+                </div>
+              </div>
+            ` : ''}
+            ${order.status === 'COMPLETED' ? `
+              <div style="margin-top:15px; padding:10px; background:rgba(0,255,0,0.1); border-radius:5px; color:#0f0; text-align:center;">
+                ✅ Đã hoàn thành! Cảm ơn bạn đã sử dụng dịch vụ.
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function getServiceName(service) {
+      const names = {
+        'level-max': '📈 Cày Max Level (2450)',
+        'awaken-fruit': '⚡ Awaken Trái Ác Quỷ',
+        'mastery-melee': '🥊 Cày Mastery Melee (600)',
+        'mastery-sword': '⚔️ Cày Mastery Sword (600)',
+        'farm-fragment': '💎 Farm Fragment (50k)',
+        'farm-beli': '💰 Farm Beli (100M)',
+        'sea-event': '🌊 Hoàn thành Sea Event'
+      };
+      return names[service] || service;
     }
 
     // Load khi trang tải
