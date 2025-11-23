@@ -1,67 +1,728 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blox Fruit Service</title>
+  <title>Blox Fruits - Dịch vụ Cày Thuê</title>
   <style>
-    body {background-color: #0d0d0d; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 20px;}
-    header {display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: #111;}
-    header .logo {font-size: 20px; font-weight: bold;}
-    header button {padding: 5px 15px; background-color: #222; color: #fff; border: none; border-radius: 5px; cursor: pointer;}
-    header button:hover {background-color: #444;}
-    h1 {color: #0f0; margin-bottom: 20px;}
-    .info-box {background-color: #222; padding: 20px; border-radius: 10px; display: inline-block; text-align: left; max-width: 400px; width: 100%;}
-    p {margin-bottom: 15px;}
-    .input-field, input, textarea {width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none; background-color: #333; color: #fff; box-sizing: border-box;}
-    .dropdown {position: relative; cursor: pointer; padding: 10px; background-color: #333; border-radius: 5px; margin-bottom: 15px; user-select: none;}
-    .dropdown-content {display: none; background-color: #333; color: #fff; border-radius: 5px; margin-top: 5px; text-align: left; padding: 0; max-height: 150px; overflow-y: auto;}
-    .dropdown-content ul {list-style: none; padding-left: 0; margin: 0;}
-    .dropdown-content li {padding: 10px; border-bottom: 1px solid #444;}
-    button.action {width: 100%; margin-top: 10px;}
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Background animation */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 119, 48, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(72, 149, 239, 0.1) 0%, transparent 50%);
+      animation: backgroundPulse 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes backgroundPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      background: rgba(26, 31, 58, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 20px 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ff7730, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255, 119, 48, 0.5);
+    }
+
+    .balance {
+      background: rgba(255, 215, 0, 0.1);
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    .header-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-header {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+
+    .btn-header:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Banner */
+    .banner {
+      background: linear-gradient(135deg, rgba(255, 119, 48, 0.2), rgba(120, 119, 198, 0.2));
+      border: 2px solid rgba(255, 119, 48, 0.3);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(255, 119, 48, 0.2);
+    }
+
+    .banner::before {
+      content: '🏴‍☠️';
+      position: absolute;
+      font-size: 200px;
+      opacity: 0.05;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .banner h1 {
+      font-size: 48px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ff7730, #ffd700, #ff7730);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255, 119, 48, 0.5);
+      position: relative;
+      z-index: 1;
+    }
+
+    .banner p {
+      font-size: 18px;
+      color: #aaa;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 500;
+    }
+    .alert.success {
+      background: rgba(0, 255, 0, 0.1);
+      border: 1px solid #0f0;
+      color: #0f0;
+    }
+    .alert.error {
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid #f00;
+      color: #f00;
+    }
+    .alert.show { display: block; animation: slideIn 0.3s; }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Services Dropdown */
+    .service-selector {
+      background: rgba(26, 31, 58, 0.6);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .selector-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #ff7730;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dropdown-wrapper {
+      position: relative;
+    }
+
+    .dropdown-select {
+      width: 100%;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      appearance: none;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 24px;
+    }
+
+    .dropdown-select:focus {
+      outline: none;
+      border-color: #ff7730;
+      background: rgba(255, 119, 48, 0.05);
+      box-shadow: 0 0 20px rgba(255, 119, 48, 0.2);
+    }
+
+    .dropdown-select option {
+      background: #1a1f3a;
+      color: #fff;
+      padding: 10px;
+    }
+
+    .service-preview {
+      margin-top: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(255, 119, 48, 0.1), rgba(255, 215, 0, 0.1));
+      border: 2px solid rgba(255, 119, 48, 0.3);
+      border-radius: 10px;
+      display: none;
+    }
+
+    .service-preview.show {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .preview-icon {
+      font-size: 48px;
+    }
+
+    .preview-price {
+      font-size: 32px;
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    .preview-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ff7730;
+      margin-bottom: 10px;
+    }
+
+    .preview-desc {
+      color: #ddd;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* Services Grid */
+    .services-grid {
+      display: none;
+    }
+
+    /* Form */
+    .order-form {
+      background: rgba(26, 31, 58, 0.6);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+
+    .form-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #ff7730;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+      font-weight: 500;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #ff7730;
+      background: rgba(255, 119, 48, 0.05);
+      box-shadow: 0 0 20px rgba(255, 119, 48, 0.2);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #666;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Summary */
+    .order-summary {
+      background: linear-gradient(135deg, rgba(255, 119, 48, 0.1), rgba(255, 215, 0, 0.1));
+      border: 2px solid rgba(255, 119, 48, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .summary-row.total {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffd700;
+      padding-top: 10px;
+      border-top: 2px solid rgba(255, 215, 0, 0.3);
+      margin-top: 10px;
+    }
+
+    /* Button */
+    .btn-order {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #ff7730, #ff9d5c);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 5px 20px rgba(255, 119, 48, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-order::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-order:hover::before {
+      left: 100%;
+    }
+
+    .btn-order:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 119, 48, 0.5);
+    }
+
+    .btn-order:disabled {
+      background: #555;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .feature-box {
+      background: rgba(26, 31, 58, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .feature-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #ff7730;
+    }
+
+    .feature-text {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+      }
+      .banner h1 {
+        font-size: 32px;
+      }
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">Shop</div>
-    <button onclick="window.location.href='naptien.html'">Nạp tiền</button>
-    <button onclick="window.history.back()">Quay lại</button>
-  </header>
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <div class="logo">🏴‍☠️ BLOX FRUITS</div>
+        <div class="balance">💰 <span id="userBalance">0</span>đ</div>
+      </div>
+      <div class="header-btns">
+        <button class="btn-header" onclick="window.location.href='naptien.html'">💳 Nạp tiền</button>
+        <button class="btn-header" onclick="window.location.href='index.html'">🏠 Trang chủ</button>
+      </div>
+    </header>
 
-  <div class="info-box">
-    <h1>Blox Fruit - Dịch vụ cày thuê</h1>
+    <div class="banner">
+      <h1>⚔️ DỊCH VỤ CÀY THUÊ BLOX FRUITS ⚔️</h1>
+      <p>Trở thành hải tặc mạnh nhất với dịch vụ cày thuê chuyên nghiệp!</p>
+    </div>
 
-    <div class="dropdown" onclick="toggleDropdown()">Chọn dịch vụ
-      <div class="dropdown-content" id="dropdownContent">
-        <ul>
-          <li class="input-field">Dịch vụ 1</li>
-          <li class="input-field">Dịch vụ 2</li>
-          <li class="input-field">Dịch vụ 3</li>
-          <li class="input-field">Dịch vụ 4</li>
-          <li class="input-field">Dịch vụ 5</li>
-          <li class="input-field">Dịch vụ 6</li>
-          <li class="input-field">Dịch vụ 7</li>
-        </ul>
+    <div id="alertBox" class="alert"></div>
+
+    <div class="features">
+      <div class="feature-box">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Cày Nhanh</div>
+        <div class="feature-text">Hoàn thành trong 1-3 ngày</div>
+      </div>
+      <div class="feature-box">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">An Toàn 100%</div>
+        <div class="feature-text">Không xâm phạm tài khoản</div>
+      </div>
+      <div class="feature-box">
+        <div class="feature-icon">💎</div>
+        <div class="feature-title">Uy Tín</div>
+        <div class="feature-text">Đã phục vụ 1000+ khách hàng</div>
+      </div>
+      <div class="feature-box">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Hoàn Tiền</div>
+        <div class="feature-text">Nếu không hài lòng</div>
       </div>
     </div>
 
-    <input type="text" class="input-field" placeholder="Nhập tên tài khoản">
-    <input type="password" class="input-field" placeholder="Nhập mật khẩu">
-    <textarea class="input-field" placeholder="Ghi chú"></textarea>
-    <button class="action" onclick="alert('Đã gửi yêu cầu!')">Gửi yêu cầu</button>
+    <h2 style="font-size: 28px; margin-bottom: 20px; color: #ff7730; text-align: center;">🎮 CHỌN DỊCH VỤ</h2>
+
+    <div class="service-selector">
+      <div class="selector-title">📋 Chọn gói dịch vụ</div>
+      
+      <div class="dropdown-wrapper">
+        <select class="dropdown-select" id="serviceSelect">
+          <option value="">-- Chọn dịch vụ bạn muốn --</option>
+          
+          <optgroup label="🎯 CÀY LEVEL & RANK">
+            <option value="level-max" data-price="500000" data-icon="📈" data-desc="Cày level từ 0 lên 2450 (Max). Bao gồm tất cả quest và nhiệm vụ chính. Thời gian: 2-3 ngày.">📈 Cày Max Level (2450) - 500,000đ</option>
+            <option value="level-1500" data-price="300000" data-icon="📊" data-desc="Cày level từ 0 lên 1500. Phù hợp cho người mới bắt đầu. Thời gian: 1-2 ngày.">📊 Cày Level 1500 - 300,000đ</option>
+            <option value="level-1000" data-price="200000" data-icon="📉" data-desc="Cày level từ 0 lên 1000. Gói cơ bản. Thời gian: 1 ngày.">📉 Cày Level 1000 - 200,000đ</option>
+          </optgroup>
+
+          <optgroup label="⚡ TRÁI ÁC QUỶ">
+            <option value="awaken-fruit" data-price="300000" data-icon="⚡" data-desc="Đánh thức sức mạnh trái ác quỷ của bạn. Bao gồm tất cả các skill. Thời gian: 1-2 ngày.">⚡ Awaken Trái Ác Quỷ - 300,000đ</option>
+            <option value="farm-fruit" data-price="250000" data-icon="🍎" data-desc="Farm trái ác quỷ theo yêu cầu. Bạn chọn trái, chúng tôi farm. Thời gian: 1-3 ngày.">🍎 Farm Trái Ác Quỷ - 250,000đ</option>
+            <option value="mastery-fruit" data-price="200000" data-icon="🔥" data-desc="Cày mastery trái ác quỷ lên 600 (Max). Thời gian: 1 ngày.">🔥 Mastery Trái (600) - 200,000đ</option>
+          </optgroup>
+
+          <optgroup label="⚔️ VŨ KHÍ & FIGHTING STYLE">
+            <option value="mastery-melee" data-price="200000" data-icon="🥊" data-desc="Cày mastery tất cả fighting style lên 600 (Max). Thời gian: 1 ngày.">🥊 Mastery Melee (600) - 200,000đ</option>
+            <option value="mastery-sword" data-price="200000" data-icon="⚔️" data-desc="Cày mastery tất cả kiếm lên 600 (Max). Thời gian: 1 ngày.">⚔️ Mastery Sword (600) - 200,000đ</option>
+            <option value="mastery-gun" data-price="200000" data-icon="🔫" data-desc="Cày mastery tất cả súng lên 600 (Max). Thời gian: 1 ngày.">🔫 Mastery Gun (600) - 200,000đ</option>
+            <option value="get-legendary-sword" data-price="350000" data-icon="🗡️" data-desc="Farm kiếm huyền thoại: True Triple Katana, Cursed Dual Katana, etc. Thời gian: 2-4 ngày.">🗡️ Farm Kiếm Huyền Thoại - 350,000đ</option>
+          </optgroup>
+
+          <optgroup label="💎 FARM TÀI NGUYÊN">
+            <option value="farm-fragment" data-price="150000" data-icon="💎" data-desc="Farm 50,000 Fragment để mua các vật phẩm quý hiếm. Thời gian: 1-2 ngày.">💎 Farm Fragment (50k) - 150,000đ</option>
+            <option value="farm-beli" data-price="100000" data-icon="💰" data-desc="Farm 100 triệu Beli để mua đồ và nâng cấp. Thời gian: 1 ngày.">💰 Farm Beli (100M) - 100,000đ</option>
+            <option value="farm-bones" data-price="120000" data-icon="🦴" data-desc="Farm Bones từ Haunted Castle. Bao gồm tất cả boss. Thời gian: 1 ngày.">🦴 Farm Bones - 120,000đ</option>
+          </optgroup>
+
+          <optgroup label="🌊 NHIỆM VỤ & EVENT">
+            <option value="sea-event" data-price="250000" data-icon="🌊" data-desc="Hoàn thành tất cả Sea Event và nhận thưởng độc quyền. Thời gian: 2-3 ngày.">🌊 Sea Event - 250,000đ</option>
+            <option value="all-boss" data-price="300000" data-icon="👹" data-desc="Đánh tất cả Boss trong game. Nhận full drop. Thời gian: 2 ngày.">👹 Farm All Boss - 300,000đ</option>
+            <option value="get-valkryie" data-price="400000" data-icon="⚔️" data-desc="Hoàn thành quest nhận Valkryie Helmet (Cần Level 2450). Thời gian: 3-4 ngày.">⚔️ Get Valkryie Helmet - 400,000đ</option>
+            <option value="full-quest" data-price="600000" data-icon="📜" data-desc="Hoàn thành TẤT CẢ quest trong game. Gói toàn diện nhất. Thời gian: 5-7 ngày.">📜 Full Quest - 600,000đ</option>
+          </optgroup>
+
+          <optgroup label="🎁 GÓI COMBO (TIẾT KIỆM)">
+            <option value="combo-starter" data-price="800000" data-icon="🎁" data-desc="Max Level + Awaken Fruit + 50k Fragment. Giảm 10%. Thời gian: 3-4 ngày.">🎁 Combo Starter - 800,000đ</option>
+            <option value="combo-pro" data-price="1200000" data-icon="💎" data-desc="Full Quest + All Mastery + Legendary Sword. Giảm 15%. Thời gian: 7-10 ngày.">💎 Combo Pro - 1,200,000đ</option>
+            <option value="combo-vip" data-price="2000000" data-icon="👑" data-desc="TẤT CẢ DỊCH VỤ. Full game từ 0 đến hoàn thiện. Giảm 20%. Thời gian: 14-20 ngày.">👑 Combo VIP - 2,000,000đ</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="service-preview" id="servicePreview">
+        <div class="preview-header">
+          <div class="preview-icon" id="previewIcon">🎮</div>
+          <div class="preview-price" id="previewPrice">0đ</div>
+        </div>
+        <div class="preview-name" id="previewName">Tên dịch vụ</div>
+        <div class="preview-desc" id="previewDesc">Mô tả dịch vụ</div>
+      </div>
+    </div>
+
+    <div class="order-form">
+      <div class="form-title">📝 THÔNG TIN ĐẶT HÀNG</div>
+
+      <form id="orderForm">
+        <div class="form-group">
+          <label>🎮 Tên tài khoản Roblox *</label>
+          <input type="text" id="username" placeholder="Nhập tên tài khoản Roblox" required>
+        </div>
+
+        <div class="form-group">
+          <label>🔒 Mật khẩu tài khoản *</label>
+          <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+        </div>
+
+        <div class="form-group">
+          <label>📝 Ghi chú thêm (không bắt buộc)</label>
+          <textarea id="note" placeholder="VD: Ưu tiên cày vào buổi tối, hoặc yêu cầu đặc biệt..."></textarea>
+        </div>
+
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Dịch vụ đã chọn:</span>
+            <span id="selectedService" style="color: #ff7730; font-weight: bold;">Chưa chọn</span>
+          </div>
+          <div class="summary-row total">
+            <span>Tổng thanh toán:</span>
+            <span id="totalPrice">0đ</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-order" id="submitBtn">🚀 ĐẶT DỊCH VỤ NGAY</button>
+      </form>
+    </div>
+
+    <div style="background: rgba(255, 0, 0, 0.1); border: 1px solid #f00; border-radius: 10px; padding: 20px; text-align: center; color: #f00; margin-bottom: 40px;">
+      <strong>⚠️ LƯU Ý QUAN TRỌNG:</strong><br>
+      Không đăng nhập tài khoản trong thời gian chúng tôi đang cày để tránh mất dữ liệu!
+    </div>
   </div>
 
-  <p style="margin-top:20px;">Chúng tôi cung cấp dịch vụ cày thuê Blox Fruit chuyên nghiệp. Nhanh chóng và an toàn!</p>
-
   <script>
-    function toggleDropdown() {
-      const content = document.getElementById('dropdownContent');
-      if (content.style.display === 'block') {
-        content.style.display = 'none';
-      } else {
-        content.style.display = 'block';
-      }
+    let selectedService = null;
+    let selectedPrice = 0;
+
+    // Load số dư
+    function loadBalance() {
+      const balance = localStorage.getItem('userBalance') || '0';
+      document.getElementById('userBalance').textContent = 
+        parseInt(balance).toLocaleString('vi-VN');
     }
+
+    // Hiển thị thông báo
+    function showAlert(message, type) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.textContent = message;
+      alertBox.className = `alert ${type} show`;
+      setTimeout(() => alertBox.classList.remove('show'), 5000);
+    }
+
+    // Xử lý chọn dịch vụ từ dropdown
+    document.getElementById('serviceSelect').addEventListener('change', function() {
+      const option = this.options[this.selectedIndex];
+      
+      if(!this.value) {
+        document.getElementById('servicePreview').classList.remove('show');
+        selectedService = null;
+        selectedPrice = 0;
+        document.getElementById('selectedService').textContent = 'Chưa chọn';
+        document.getElementById('totalPrice').textContent = '0đ';
+        return;
+      }
+
+      selectedService = this.value;
+      selectedPrice = parseInt(option.dataset.price);
+
+      // Hiển thị preview
+      const preview = document.getElementById('servicePreview');
+      document.getElementById('previewIcon').textContent = option.dataset.icon;
+      document.getElementById('previewPrice').textContent = selectedPrice.toLocaleString('vi-VN') + 'đ';
+      document.getElementById('previewName').textContent = option.text.split(' - ')[0];
+      document.getElementById('previewDesc').textContent = option.dataset.desc;
+      preview.classList.add('show');
+
+      // Cập nhật summary
+      document.getElementById('selectedService').textContent = option.text.split(' - ')[0];
+      document.getElementById('totalPrice').textContent = selectedPrice.toLocaleString('vi-VN') + 'đ';
+    });
+
+    // Submit form
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if(!selectedService) {
+        showAlert('❌ Vui lòng chọn dịch vụ!', 'error');
+        return;
+      }
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const note = document.getElementById('note').value.trim();
+
+      if(!username || !password) {
+        showAlert('❌ Vui lòng điền đầy đủ thông tin tài khoản!', 'error');
+        return;
+      }
+
+      // Kiểm tra số dư
+      const currentBalance = parseInt(localStorage.getItem('userBalance') || '0');
+      if(currentBalance < selectedPrice) {
+        showAlert(`❌ Số dư không đủ! Bạn cần thêm ${(selectedPrice - currentBalance).toLocaleString('vi-VN')}đ`, 'error');
+        setTimeout(() => window.location.href = 'naptien.html', 2000);
+        return;
+      }
+
+      const currentUser = localStorage.getItem('currentUser');
+      if(!currentUser) {
+        showAlert('❌ Vui lòng đăng nhập!', 'error');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+        return;
+      }
+
+      // Trừ tiền
+      const newBalance = currentBalance - selectedPrice;
+      localStorage.setItem('userBalance', newBalance);
+
+      // Lưu đơn hàng
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const newOrder = {
+        id: Date.now(),
+        username: currentUser,
+        service: selectedService,
+        price: selectedPrice,
+        game_username: username,
+        game_password: password,
+        note: note,
+        status: 'PENDING',
+        progress: 0,
+        progressText: '',
+        createdAt: new Date().toISOString()
+      };
+      orders.push(newOrder);
+      localStorage.setItem('orders', JSON.stringify(orders));
+
+      // Cập nhật số dư user
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = users.findIndex(u => u.username === currentUser);
+      if(userIndex !== -1) {
+        users[userIndex].balance = newBalance;
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+
+      showAlert('✅ Đặt dịch vụ thành công! Chúng tôi sẽ liên hệ bạn sớm.', 'success');
+      
+      // Reset
+      loadBalance();
+      this.reset();
+      document.getElementById('serviceSelect').value = '';
+      document.getElementById('servicePreview').classList.remove('show');
+      selectedService = null;
+      selectedPrice = 0;
+      document.getElementById('selectedService').textContent = 'Chưa chọn';
+      document.getElementById('totalPrice').textContent = '0đ';
+
+      setTimeout(() => window.location.href = 'index.html', 2000);
+    });
+
+    // Load số dư khi vào trang
+    loadBalance();
   </script>
 </body>
 </html>
