@@ -596,14 +596,30 @@
   </div>
 
   <script>
+    const API_URL = 'api';
     let selectedService = null;
     let selectedPrice = 0;
 
     // Load số dư
-    function loadBalance() {
-      const balance = localStorage.getItem('userBalance') || '0';
-      document.getElementById('userBalance').textContent = 
-        parseInt(balance).toLocaleString('vi-VN');
+    async function loadBalance() {
+      try {
+        const formData = new FormData();
+        formData.append('action', 'check');
+        
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+        const data = await response.json();
+
+        if(data.status === 1 && data.balance !== undefined) {
+          document.getElementById('userBalance').textContent = 
+            parseInt(data.balance).toLocaleString('vi-VN');
+        }
+      } catch(error) {
+        console.log('Lỗi load balance:', error);
+      }
     }
 
     // Hiển thị thông báo
@@ -644,7 +660,7 @@
     });
 
     // Submit form
-    document.getElementById('orderForm').addEventListener('submit', function(e) {
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       if(!selectedService) {
@@ -661,64 +677,52 @@
         return;
       }
 
-      // Kiểm tra số dư
-      const currentBalance = parseInt(localStorage.getItem('userBalance') || '0');
-      if(currentBalance < selectedPrice) {
-        showAlert(`❌ Số dư không đủ! Bạn cần thêm ${(selectedPrice - currentBalance).toLocaleString('vi-VN')}đ`, 'error');
-        setTimeout(() => window.location.href = 'naptien.html', 2000);
-        return;
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Đang xử lý...';
+
+      try {
+        const formData = new FormData();
+        formData.append('service', selectedService);
+        formData.append('price', selectedPrice);
+        formData.append('username', username);
+        formData.append('password', password);
+        formData.append('note', note);
+
+        const response = await fetch(`${API_URL}/order_bloxfruits.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if(data.status === 1) {
+          showAlert('✅ Đặt dịch vụ thành công! Chúng tôi sẽ liên hệ bạn sớm.', 'success');
+          
+          // Load lại số dư
+          await loadBalance();
+          
+          // Reset form
+          this.reset();
+          document.getElementById('serviceSelect').value = '';
+          document.getElementById('servicePreview').classList.remove('show');
+          selectedService = null;
+          selectedPrice = 0;
+          document.getElementById('selectedService').textContent = 'Chưa chọn';
+          document.getElementById('totalPrice').textContent = '0đ';
+
+          setTimeout(() => window.location.href = 'index.html', 2000);
+        } else {
+          showAlert('❌ ' + (data.msg || 'Đặt dịch vụ thất bại!'), 'error');
+        }
+
+      } catch(error) {
+        showAlert('❌ Lỗi kết nối server!', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 ĐẶT DỊCH VỤ NGAY';
       }
-
-      const currentUser = localStorage.getItem('currentUser');
-      if(!currentUser) {
-        showAlert('❌ Vui lòng đăng nhập!', 'error');
-        setTimeout(() => window.location.href = 'login.html', 1500);
-        return;
-      }
-
-      // Trừ tiền
-      const newBalance = currentBalance - selectedPrice;
-      localStorage.setItem('userBalance', newBalance);
-
-      // Lưu đơn hàng
-      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      const newOrder = {
-        id: Date.now(),
-        username: currentUser,
-        service: selectedService,
-        price: selectedPrice,
-        game_username: username,
-        game_password: password,
-        note: note,
-        status: 'PENDING',
-        progress: 0,
-        progressText: '',
-        createdAt: new Date().toISOString()
-      };
-      orders.push(newOrder);
-      localStorage.setItem('orders', JSON.stringify(orders));
-
-      // Cập nhật số dư user
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const userIndex = users.findIndex(u => u.username === currentUser);
-      if(userIndex !== -1) {
-        users[userIndex].balance = newBalance;
-        localStorage.setItem('users', JSON.stringify(users));
-      }
-
-      showAlert('✅ Đặt dịch vụ thành công! Chúng tôi sẽ liên hệ bạn sớm.', 'success');
-      
-      // Reset
-      loadBalance();
-      this.reset();
-      document.getElementById('serviceSelect').value = '';
-      document.getElementById('servicePreview').classList.remove('show');
-      selectedService = null;
-      selectedPrice = 0;
-      document.getElementById('selectedService').textContent = 'Chưa chọn';
-      document.getElementById('totalPrice').textContent = '0đ';
-
-      setTimeout(() => window.location.href = 'index.html', 2000);
     });
 
     // Load số dư khi vào trang
