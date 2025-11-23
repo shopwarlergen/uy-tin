@@ -1,8 +1,18 @@
 <?php
 require_once 'config.php';
 
-session_start();
+// CORS Headers
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
+
+session_start();
 
 // Kiểm tra quyền admin
 if(!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
