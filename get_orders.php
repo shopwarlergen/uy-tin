@@ -1,29 +1,18 @@
 <?php
-header('Access-Control-Allow-Origin: https://shopwarlergen.github.io');
-header('Access-Control-Allow-Credentials: true');
-header('Content-Type: application/json');
+require_once 'config.php';
 
 session_start();
+header('Content-Type: application/json');
 
-// ⚠️ BẢO MẬT: Chỉ admin mới xem được
+// Kiểm tra quyền admin
 if(!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
-    echo json_encode(['status' => 0, 'msg' => 'Vui lòng đăng nhập admin']);
+    echo json_encode(['status' => 0, 'msg' => 'Không có quyền truy cập']);
     exit;
 }
 
-// ⚠️ THAY ĐỔI THÔNG TIN DATABASE CỦA BẠN Ở ĐÂY
-$conn = new mysqli("localhost", "root", "", "webshop");
-// VD với InfinityFree:
-// $conn = new mysqli("sql123.epizy.com", "epiz_12345", "password_của_bạn", "epiz_12345_webshop");
-
-$conn->set_charset("utf8");
-
-if ($conn->connect_error) {
-    echo json_encode(['status' => 0, 'msg' => 'Lỗi kết nối database']);
-    exit;
-}
-
+$conn = getConnection();
 $filterStatus = $_GET['status'] ?? '';
+$username = $_GET['username'] ?? ''; // Lọc theo user (cho trang account)
 
 // Lấy thống kê tổng quan
 $stats = [
@@ -35,31 +24,41 @@ $stats = [
 ];
 
 // Tổng số đơn hàng
-$result = $conn->query("SELECT COUNT(*) as total FROM orders_bloxfruits");
+$sql = "SELECT COUNT(*) as total FROM orders_bloxfruits";
+if($username) $sql .= " WHERE username='$username'";
+$result = $conn->query($sql);
 if($result) {
     $stats['total'] = $result->fetch_assoc()['total'];
 }
 
 // Đơn đang chờ
-$result = $conn->query("SELECT COUNT(*) as count FROM orders_bloxfruits WHERE status='PENDING'");
+$sql = "SELECT COUNT(*) as count FROM orders_bloxfruits WHERE status='PENDING'";
+if($username) $sql .= " AND username='$username'";
+$result = $conn->query($sql);
 if($result) {
     $stats['pending'] = $result->fetch_assoc()['count'];
 }
 
 // Đơn đang xử lý
-$result = $conn->query("SELECT COUNT(*) as count FROM orders_bloxfruits WHERE status='PROCESSING'");
+$sql = "SELECT COUNT(*) as count FROM orders_bloxfruits WHERE status='PROCESSING'";
+if($username) $sql .= " AND username='$username'";
+$result = $conn->query($sql);
 if($result) {
     $stats['processing'] = $result->fetch_assoc()['count'];
 }
 
 // Đơn hoàn thành
-$result = $conn->query("SELECT COUNT(*) as count FROM orders_bloxfruits WHERE status='COMPLETED'");
+$sql = "SELECT COUNT(*) as count FROM orders_bloxfruits WHERE status='COMPLETED'";
+if($username) $sql .= " AND username='$username'";
+$result = $conn->query($sql);
 if($result) {
     $stats['completed'] = $result->fetch_assoc()['count'];
 }
 
-// Tổng doanh thu (chỉ tính đơn hoàn thành)
-$result = $conn->query("SELECT SUM(price) as revenue FROM orders_bloxfruits WHERE status='COMPLETED'");
+// Tổng doanh thu
+$sql = "SELECT SUM(price) as revenue FROM orders_bloxfruits WHERE status='COMPLETED'";
+if($username) $sql .= " AND username='$username'";
+$result = $conn->query($sql);
 if($result) {
     $row = $result->fetch_assoc();
     $stats['revenue'] = $row['revenue'] ?? 0;
@@ -67,13 +66,21 @@ if($result) {
 
 // Lấy danh sách đơn hàng
 $sql = "SELECT * FROM orders_bloxfruits";
+$conditions = [];
 
-// Lọc theo trạng thái nếu có
-if($filterStatus && in_array($filterStatus, ['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'])) {
-    $sql .= " WHERE status='$filterStatus'";
+if($username) {
+    $conditions[] = "username='$username'";
 }
 
-$sql .= " ORDER BY id DESC LIMIT 100"; // Giới hạn 100 đơn gần nhất
+if($filterStatus && in_array($filterStatus, ['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'])) {
+    $conditions[] = "status='$filterStatus'";
+}
+
+if(count($conditions) > 0) {
+    $sql .= " WHERE " . implode(" AND ", $conditions);
+}
+
+$sql .= " ORDER BY id DESC LIMIT 100";
 
 $result = $conn->query($sql);
 $orders = [];
