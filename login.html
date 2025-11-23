@@ -201,16 +201,7 @@
   </div>
 
   <script>
-    // Lấy danh sách users từ localStorage
-    function getUsers() {
-      const users = localStorage.getItem('users');
-      return users ? JSON.parse(users) : [];
-    }
-
-    // Lưu danh sách users vào localStorage
-    function saveUsers(users) {
-      localStorage.setItem('users', JSON.stringify(users));
-    }
+    const API_URL = 'api'; // Thư mục chứa PHP
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -234,7 +225,7 @@
       setTimeout(() => alertBox.classList.remove('show'), 5000);
     }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
 
       const username = document.getElementById('login_username').value.trim();
@@ -245,33 +236,41 @@
         return;
       }
 
-      const users = getUsers();
-      const user = users.find(u => u.username === username);
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Đang xử lý...';
 
-      if(!user) {
-        showAlert('❌ Tài khoản không tồn tại', 'error');
-        return;
+      try {
+        const formData = new FormData();
+        formData.append('action', 'login');
+        formData.append('username', username);
+        formData.append('password', password);
+
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if(data.status === 1) {
+          showAlert('✅ Đăng nhập thành công!', 'success');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        } else {
+          showAlert('❌ ' + (data.msg || 'Đăng nhập thất bại'), 'error');
+        }
+      } catch(error) {
+        showAlert('❌ Lỗi kết nối server', 'error');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Đăng nhập';
       }
-
-      if(user.password !== password) {
-        showAlert('❌ Sai mật khẩu', 'error');
-        return;
-      }
-
-      // Đăng nhập thành công - LƯU VÀO LOCALSTORAGE
-      localStorage.setItem('currentUser', username);
-      localStorage.setItem('userBalance', user.balance || 0);
-      
-      console.log('Đã lưu currentUser:', localStorage.getItem('currentUser'));
-      console.log('Đã lưu userBalance:', localStorage.getItem('userBalance'));
-      
-      showAlert('✅ Đăng nhập thành công!', 'success');
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1000);
     }
 
-    function handleRegister(e) {
+    async function handleRegister(e) {
       e.preventDefault();
 
       const username = document.getElementById('reg_username').value.trim();
@@ -298,31 +297,41 @@
         return;
       }
 
-      const users = getUsers();
-      
-      // Kiểm tra username đã tồn tại
-      if(users.find(u => u.username === username)) {
-        showAlert('❌ Tên đăng nhập đã tồn tại', 'error');
-        return;
+      const registerBtn = document.getElementById('registerBtn');
+      registerBtn.disabled = true;
+      registerBtn.textContent = 'Đang xử lý...';
+
+      try {
+        const formData = new FormData();
+        formData.append('action', 'register');
+        formData.append('username', username);
+        formData.append('password', password);
+
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if(data.status === 1) {
+          showAlert('✅ Đăng ký thành công!', 'success');
+          document.getElementById('registerForm').querySelector('form').reset();
+          
+          setTimeout(() => {
+            switchTab('login');
+            document.getElementById('login_username').value = username;
+          }, 2000);
+        } else {
+          showAlert('❌ ' + (data.msg || 'Đăng ký thất bại'), 'error');
+        }
+      } catch(error) {
+        showAlert('❌ Lỗi kết nối server', 'error');
+      } finally {
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Đăng ký';
       }
-
-      // Tạo tài khoản mới
-      users.push({
-        username: username,
-        password: password,
-        balance: 0,
-        createdAt: new Date().toISOString()
-      });
-
-      saveUsers(users);
-
-      showAlert('✅ Đăng ký thành công!', 'success');
-      document.getElementById('registerForm').querySelector('form').reset();
-      
-      setTimeout(() => {
-        switchTab('login');
-        document.getElementById('login_username').value = username;
-      }, 2000);
     }
   </script>
 </body>
