@@ -384,23 +384,25 @@
     // Kiểm tra trạng thái đăng nhập
     async function checkLoginStatus() {
       try {
-        const response = await fetch(`${API_URL}/check_login.php`, {
+        const formData = new FormData();
+        formData.append('action', 'check');
+        
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
           credentials: 'include'
         });
         const data = await response.json();
 
         if(data.status === 1) {
-          // Đã đăng nhập
           document.getElementById('btnLogin').style.display = 'none';
           document.getElementById('btnLogout').style.display = 'block';
           document.getElementById('btnDeposit').style.display = 'block';
           document.getElementById('balanceDisplay').style.display = 'block';
           
-          // Update số dư
           localStorage.setItem('userBalance', data.balance || 0);
           loadBalance();
         } else {
-          // Chưa đăng nhập
           document.getElementById('btnLogin').style.display = 'block';
           document.getElementById('btnLogout').style.display = 'none';
           document.getElementById('btnDeposit').style.display = 'none';
@@ -409,6 +411,8 @@
       } catch(error) {
         console.log('Chưa đăng nhập');
       }
+
+      checkAdminStatus();
     }
 
     // Xử lý đăng xuất
@@ -416,7 +420,12 @@
       if(!confirm('Bạn có chắc muốn đăng xuất?')) return;
 
       try {
-        const response = await fetch(`${API_URL}/user_logout.php`, {
+        const formData = new FormData();
+        formData.append('action', 'logout');
+        
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
           credentials: 'include'
         });
         const data = await response.json();
