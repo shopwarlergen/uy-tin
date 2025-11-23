@@ -1,8 +1,19 @@
 <?php
 require_once 'config.php';
 
-session_start();
+// CORS Headers
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
+
+// Xử lý preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
+
+session_start();
 
 $conn = getConnection();
 $action = $_POST['action'] ?? '';
