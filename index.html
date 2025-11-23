@@ -582,29 +582,53 @@
     }
 
     // Kiểm tra đăng nhập trước khi vào trang dịch vụ
-    function checkLoginAndRedirect() {
-      const currentUser = localStorage.getItem('currentUser');
-      
-      if(!currentUser) {
+    async function checkLoginAndRedirect() {
+      try {
+        const formData = new FormData();
+        formData.append('action', 'check');
+        
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if(data.status === 1) {
+          window.location.href = 'bloxfruits.html';
+        } else {
+          alert('Vui lòng đăng nhập để sử dụng dịch vụ!');
+          window.location.href = 'login.html';
+        }
+      } catch(error) {
         alert('Vui lòng đăng nhập để sử dụng dịch vụ!');
         window.location.href = 'login.html';
-        return;
       }
-      
-      // Đã đăng nhập -> Chuyển đến trang dịch vụ
-      window.location.href = 'bloxfruits.html';
     }
 
     // Hiển thị modal đơn hàng
-    function showMyOrders() {
-      const currentUser = localStorage.getItem('currentUser');
-      if(!currentUser) {
-        alert('Vui lòng đăng nhập!');
-        return;
-      }
+    async function showMyOrders() {
+      try {
+        const formData = new FormData();
+        formData.append('action', 'check');
+        
+        const response = await fetch(`${API_URL}/auth.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+        const data = await response.json();
 
-      document.getElementById('ordersModal').style.display = 'block';
-      loadMyOrders();
+        if(data.status !== 1) {
+          alert('Vui lòng đăng nhập!');
+          return;
+        }
+
+        document.getElementById('ordersModal').style.display = 'block';
+        await loadMyOrders(data.username);
+      } catch(error) {
+        alert('Vui lòng đăng nhập!');
+      }
     }
 
     // Đóng modal
@@ -613,20 +637,36 @@
     }
 
     // Load đơn hàng của user
-    function loadMyOrders() {
-      const currentUser = localStorage.getItem('currentUser');
-      const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      const myOrders = allOrders.filter(order => order.username === currentUser);
+    async function loadMyOrders(username) {
+      const container = document.getElementById('ordersContent');
+      container.innerHTML = '<div style="text-align:center; color:#aaa; padding:50px;">Đang tải...</div>';
 
+      try {
+        const response = await fetch(`${API_URL}/get_orders.php?username=${username}`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+
+        if(data.status === 1 && data.orders) {
+          displayMyOrders(data.orders);
+        } else {
+          container.innerHTML = '<div style="text-align:center; color:#aaa; padding:50px;">Bạn chưa có đơn hàng nào</div>';
+        }
+      } catch(error) {
+        container.innerHTML = '<div style="text-align:center; color:#f00; padding:50px;">Lỗi tải đơn hàng</div>';
+      }
+    }
+
+    function displayMyOrders(orders) {
       const container = document.getElementById('ordersContent');
 
-      if(myOrders.length === 0) {
+      if(orders.length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#aaa; padding:50px;">Bạn chưa có đơn hàng nào</div>';
         return;
       }
 
       let html = '';
-      myOrders.forEach(order => {
+      orders.forEach(order => {
         const statusText = {
           'PENDING': 'Đang chờ',
           'PROCESSING': 'Đang xử lý',
@@ -635,9 +675,7 @@
         }[order.status] || order.status;
 
         const statusClass = 'status-' + order.status.toLowerCase();
-
         const progress = order.progress || 0;
-        const progressText = order.progressText || 'Chưa bắt đầu';
 
         html += `
           <div class="order-card">
@@ -649,23 +687,18 @@
               <div><strong>Dịch vụ:</strong> ${getServiceName(order.service)}</div>
               <div><strong>Giá:</strong> ${parseInt(order.price).toLocaleString('vi-VN')} VND</div>
               <div><strong>Tài khoản game:</strong> ${order.game_username}</div>
-              <div><strong>Ngày đặt:</strong> ${new Date(order.createdAt).toLocaleString('vi-VN')}</div>
+              <div><strong>Ngày đặt:</strong> ${new Date(order.created_at).toLocaleString('vi-VN')}</div>
               ${order.note ? '<div><strong>Ghi chú:</strong> ' + order.note + '</div>' : ''}
             </div>
             ${order.status === 'PROCESSING' ? `
               <div class="order-progress">
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                  <span style="color:#0f0; font-weight:bold;">Tiến độ: ${progressText}</span>
-                  <span style="color:#0f0; font-weight:bold;">${progress}%</span>
+                  <span style="color:#ff7730; font-weight:bold;">Tiến độ</span>
+                  <span style="color:#ff7730; font-weight:bold;">${progress}%</span>
                 </div>
                 <div class="progress-bar">
                   <div class="progress-fill" style="width:${progress}%">${progress > 10 ? progress + '%' : ''}</div>
                 </div>
-              </div>
-            ` : ''}
-            ${order.status === 'COMPLETED' ? `
-              <div style="margin-top:15px; padding:10px; background:rgba(0,255,0,0.1); border-radius:5px; color:#0f0; text-align:center;">
-                ✅ Đã hoàn thành! Cảm ơn bạn đã sử dụng dịch vụ.
               </div>
             ` : ''}
           </div>
