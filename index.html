@@ -344,7 +344,7 @@
         <h3>Blox Fruits</h3>
         <p class="product-desc">Cày level, farm fragment, awaken trái ác quỷ, hoàn thành mọi nhiệm vụ trong game</p>
         <div class="status">✅ Đang hoạt động</div>
-        <button onclick="window.location.href='bloxfruits.html'">Thuê ngay</button>
+        <button onclick="checkLoginAndRedirect()">Thuê ngay</button>
       </div>
 
       <div class="product">
@@ -438,6 +438,20 @@
       } catch(error) {
         alert('Lỗi đăng xuất!');
       }
+    }
+
+    // Kiểm tra đăng nhập trước khi vào trang dịch vụ
+    function checkLoginAndRedirect() {
+      const currentUser = localStorage.getItem('currentUser');
+      
+      if(!currentUser) {
+        alert('Vui lòng đăng nhập để sử dụng dịch vụ!');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Đã đăng nhập -> Chuyển đến trang dịch vụ
+      window.location.href = 'bloxfruits.html';
     }
 
     // Load khi trang tải
