@@ -258,9 +258,12 @@
         return;
       }
 
-      // Đăng nhập thành công
+      // Đăng nhập thành công - LƯU VÀO LOCALSTORAGE
       localStorage.setItem('currentUser', username);
       localStorage.setItem('userBalance', user.balance || 0);
+      
+      console.log('Đã lưu currentUser:', localStorage.getItem('currentUser'));
+      console.log('Đã lưu userBalance:', localStorage.getItem('userBalance'));
       
       showAlert('✅ Đăng nhập thành công!', 'success');
       setTimeout(() => {
