@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Đơn Hàng - Admin</title>
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 119, 48, 0.1) 0%, transparent 50%);
+      animation: backgroundPulse 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes backgroundPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    .container {max-width: 1400px; margin: 0 auto; position: relative; z-index: 1;}
+    
+    header {
+      background: rgba(26, 31, 58, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 0, 0, 0.3);
+    }
+    
+    h1 {
+      font-size: 28px;
+      background: linear-gradient(135deg, #f00, #ff4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-box {
+      background: rgba(26, 31, 58, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-box h3 {
+      font-size: 32px;
+      color: #ffa500;
+      margin-bottom: 5px;
+    }
+    
+    .stat-box p {
+      font-size: 14px;
+      color: #ddd;
+    }
+    
+    .filters {
+      background: rgba(26, 31, 58, 0.6);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .filters select, .filters button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    
+    .filters select {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .filters button {
+      background: linear-gradient(135deg, #ff7730, #ff9d5c);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .filters button:hover {
+      transform: translateY(-2px);
+    }
+    
+    table {
+      width: 100%;
+      background: rgba(26, 31, 58, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    th {
+      background: rgba(255, 0, 0, 0.2);
+      padding: 15px;
+      text-align: left;
+      font-weight: bold;
+    }
+    
+    td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    tr:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .status-pending {background: rgba(255,165,0,0.2); color: #ffa500;}
+    .status-processing {background: rgba(0,191,255,0.2); color: #00bfff;}
+    .status-completed {background: rgba(0,255,0,0.2); color: #0f0;}
+    .status-cancelled {background: rgba(255,0,0,0.2); color: #f00;}
+    
+    .action-btn {
+      padding: 5px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 5px;
+      transition: all 0.3s;
+    }
+    
+    .btn-accept {background: #0f0; color: #000;}
+    .btn-complete {background: #00f; color: #fff;}
+    .btn-cancel {background: #f00; color: #fff;}
+    .action-btn:hover {opacity: 0.8; transform: scale(1.05);}
+    
+    .order-detail {
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 5px;
+      font-size: 13px;
+      display: none;
+    }
+    
+    .order-detail.show {display: block;}
+    .toggle-detail {color: #ff7730; cursor: pointer; text-decoration: underline;}
+    
+    .empty {text-align: center; padding: 50px; color: #aaa;}
+    .loading {text-align: center; padding: 50px; color: #ff7730;}
+    
+    .refresh-btn {
+      background: linear-gradient(135deg, #f00, #c00);
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .refresh-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+    }
+
+    .progress-input {
+      width: 80px;
+      padding: 5px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 5px;
+      color: #fff;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛡️ ADMIN - Quản Lý Đơn Hàng</h1>
+      <div>
+        <button class="refresh-btn" onclick="loadOrders()">🔄 Làm mới</button>
+        <button class="refresh-btn" onclick="window.location.href='index.html'">🏠 Trang chủ</button>
+      </div>
+    </header>
+
+    <div class="stats">
+      <div class="stat-box">
+        <h3 id="totalOrders">0</h3>
+        <p>Tổng đơn hàng</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="pendingOrders">0</h3>
+        <p>Đang chờ</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="processingOrders">0</h3>
+        <p>Đang xử lý</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="completedOrders">0</h3>
+        <p>Hoàn thành</p>
+      </div>
+      <div class="stat-box">
+        <h3 id="totalRevenue">0đ</h3>
+        <p>Doanh thu</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <select id="filterStatus">
+        <option value="">Tất cả trạng thái</option>
+        <option value="PENDING">Đang chờ</option>
+        <option value="PROCESSING">Đang xử lý</option>
+        <option value="COMPLETED">Hoàn thành</option>
+        <option value="CANCELLED">Đã hủy</option>
+      </select>
+      <button onclick="loadOrders()">🔍 Lọc</button>
+    </div>
+
+    <div id="ordersContainer">
+      <div class="loading">Đang tải đơn hàng...</div>
+    </div>
+  </div>
+
+  <script>
+    // Kiểm tra quyền admin
+    const currentUser = localStorage.getItem('currentUser');
+    if(currentUser !== 'warlergen') {
+      alert('Bạn không có quyền truy cập trang này!');
+      window.location.href = 'index.html';
+    }
+
+    function loadOrders() {
+      const container = document.getElementById('ordersContainer');
+      const filterStatus = document.getElementById('filterStatus').value;
+      
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      let filteredOrders = orders;
+      
+      if(filterStatus) {
+        filteredOrders = orders.filter(o => o.status === filterStatus);
+      }
+
+      updateStats(orders);
+      displayOrders(filteredOrders);
+    }
+
+    function updateStats(orders) {
+      const total = orders.length;
+      const pending = orders.filter(o => o.status === 'PENDING').length;
+      const processing = orders.filter(o => o.status === 'PROCESSING').length;
+      const completed = orders.filter(o => o.status === 'COMPLETED').length;
+      const revenue = orders.filter(o => o.status === 'COMPLETED')
+                            .reduce((sum, o) => sum + parseInt(o.price), 0);
+
+      document.getElementById('totalOrders').textContent = total;
+      document.getElementById('pendingOrders').textContent = pending;
+      document.getElementById('processingOrders').textContent = processing;
+      document.getElementById('completedOrders').textContent = completed;
+      document.getElementById('totalRevenue').textContent = revenue.toLocaleString('vi-VN') + 'đ';
+    }
+
+    function displayOrders(orders) {
+      const container = document.getElementById('ordersContainer');
+      
+      if(!orders || orders.length === 0) {
+        container.innerHTML = '<div class="empty">Không có đơn hàng nào</div>';
+        return;
+      }
+
+      orders.sort((a, b) => b.id - a.id);
+
+      let html = '<table><thead><tr>';
+      html += '<th>ID</th><th>Khách hàng</th><th>Dịch vụ</th><th>Giá</th>';
+      html += '<th>Trạng thái</th><th>Tiến độ</th><th>Ngày đặt</th><th>Thao tác</th></tr></thead><tbody>';
+
+      orders.forEach(order => {
+        const statusClass = 'status-' + order.status.toLowerCase();
+        const statusText = {
+          'PENDING': 'Đang chờ',
+          'PROCESSING': 'Đang xử lý',
+          'COMPLETED': 'Hoàn thành',
+          'CANCELLED': 'Đã hủy'
+        }[order.status];
+
+        html += `<tr>
+          <td>#${order.id}</td>
+          <td>${order.username}</td>
+          <td>
+            <span class="toggle-detail" onclick="toggleDetail(${order.id})">${getServiceName(order.service)}</span>
+            <div class="order-detail" id="detail-${order.id}">
+              <strong>Tài khoản game:</strong> ${order.game_username}<br>
+              <strong>Mật khẩu:</strong> ${order.game_password}<br>
+              ${order.note ? '<strong>Ghi chú:</strong> ' + order.note : ''}
+            </div>
+          </td>
+          <td>${parseInt(order.price).toLocaleString('vi-VN')}đ</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td>
+            ${order.status === 'PROCESSING' ? 
+              `<input type="number" class="progress-input" value="${order.progress || 0}" id="progress-${order.id}" min="0" max="100">%
+               <button class="action-btn btn-accept" onclick="updateProgress(${order.id})">💾</button>` 
+              : (order.progress || 0) + '%'}
+          </td>
+          <td>${new Date(order.createdAt).toLocaleString('vi-VN')}</td>
+          <td>${getActionButtons(order)}</td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function getServiceName(service) {
+      const names = {
+        'level-max': '📈 Cày Max Level',
+        'level-1500': '📊 Level 1500',
+        'level-1000': '📉 Level 1000',
+        'awaken-fruit': '⚡ Awaken Trái',
+        'farm-fruit': '🍎 Farm Trái',
+        'mastery-fruit': '🔥 Mastery Trái',
+        'mastery-melee': '🥊 Mastery Melee',
+        'mastery-sword': '⚔️ Mastery Sword',
+        'mastery-gun': '🔫 Mastery Gun',
+        'get-legendary-sword': '🗡️ Kiếm Huyền Thoại',
+        'farm-fragment': '💎 Farm Fragment',
+        'farm-beli': '💰 Farm Beli',
+        'farm-bones': '🦴 Farm Bones',
+        'sea-event': '🌊 Sea Event',
+        'all-boss': '👹 All Boss',
+        'get-valkryie': '⚔️ Valkryie',
+        'full-quest': '📜 Full Quest',
+        'combo-starter': '🎁 Combo Starter',
+        'combo-pro': '💎 Combo Pro',
+        'combo-vip': '👑 Combo VIP'
+      };
+      return names[service] || service;
+    }
+
+    function getActionButtons(order) {
+      let btns = '';
+      if(order.status === 'PENDING') {
+        btns += `<button class="action-btn btn-accept" onclick="updateStatus(${order.id}, 'PROCESSING')">✓ Nhận</button>`;
+      }
+      if(order.status === 'PROCESSING') {
+        btns += `<button class="action-btn btn-complete" onclick="updateStatus(${order.id}, 'COMPLETED')">✓ Hoàn thành</button>`;
+      }
+      if(order.status !== 'COMPLETED' && order.status !== 'CANCELLED') {
+        btns += `<button class="action-btn btn-cancel" onclick="updateStatus(${order.id}, 'CANCELLED')">✗ Hủy</button>`;
+      }
+      return btns || '-';
+    }
+
+    function toggleDetail(orderId) {
+      const detail = document.getElementById('detail-' + orderId);
+      detail.classList.toggle('show');
+    }
+
+    function updateStatus(orderId, newStatus) {
+      if(!confirm('Xác nhận thay đổi trạng thái?')) return;
+
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const orderIndex = orders.findIndex(o => o.id === orderId);
+      
+      if(orderIndex !== -1) {
+        orders[orderIndex].status = newStatus;
+        if(newStatus === 'COMPLETED') {
+          orders[orderIndex].progress = 100;
+        }
+        localStorage.setItem('orders', JSON.stringify(orders));
+        alert('Cập nhật thành công!');
+        loadOrders();
+      }
+    }
+
+    function updateProgress(orderId) {
+      const progressValue = document.getElementById('progress-' + orderId).value;
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const orderIndex = orders.findIndex(o => o.id === orderId);
+      
+      if(orderIndex !== -1) {
+        orders[orderIndex].progress = parseInt(progressValue);
+        orders[orderIndex].progressText = `Đã hoàn thành ${progressValue}%`;
+        localStorage.setItem('orders', JSON.stringify(orders));
+        alert('Cập nhật tiến độ thành công!');
+        loadOrders();
+      }
+    }
+
+    loadOrders();
+    setInterval(loadOrders, 30000);
+  </script>
+</body>
+</html>
