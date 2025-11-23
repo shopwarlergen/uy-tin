@@ -201,7 +201,40 @@
   </div>
 
   <script>
-    const API_URL = 'api'; // Thư mục chứa PHP
+    // Thử nhiều cách tìm đường dẫn API
+    const API_PATHS = [
+      'api',           // Nếu file HTML ở root
+      '../api',        // Nếu file HTML ở subfolder
+      './api',         // Relative path
+      'api'       // Absolute path (đổi yourdomain.com)
+    ];
+
+    let API_URL = API_PATHS[0]; // Mặc định dùng 'api'
+
+    // Test function để tìm đường dẫn đúng
+    async function findWorkingAPI() {
+      for(let path of API_PATHS) {
+        try {
+          const response = await fetch(`${path}/auth.php`, {
+            method: 'POST',
+            body: new FormData(),
+            credentials: 'include'
+          });
+          if(response.ok) {
+            API_URL = path;
+            console.log('✅ API hoạt động tại:', API_URL);
+            return true;
+          }
+        } catch(e) {
+          console.log('❌ Không tìm thấy API tại:', path);
+        }
+      }
+      console.error('🚨 Không tìm thấy API ở bất kỳ đường dẫn nào!');
+      return false;
+    }
+
+    // Gọi test khi load trang
+    findWorkingAPI();
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
